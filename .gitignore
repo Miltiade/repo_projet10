@@ -1,8 +1,10 @@
 __pycache__/
 *.pyc
 *.pyo
-.venv/
 env/
+.env
+.env.local
+*.env
+.venv/
 *.sqlite3
 *.log
-*.env
