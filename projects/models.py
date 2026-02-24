@@ -1,5 +1,5 @@
 from django.db import models
-from users.models import User  # Import de votre modèle User personnalisé
+from users.models import User
 
 class Project(models.Model):
     title = models.CharField(max_length=128)
@@ -9,6 +9,39 @@ class Project(models.Model):
 
     def __str__(self):
         return self.title
+
+class Issue(models.Model):
+    STATUS_CHOICES = (
+        ('todo', 'To Do'),
+        ('in_progress', 'In Progress'),
+        ('done', 'Done'),
+    )
+
+    PRIORITY_CHOICES = (
+        ('low', 'Low'),
+        ('medium', 'Medium'),
+        ('high', 'High'),
+    )
+
+    title = models.CharField(max_length=128)
+    description = models.TextField()
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='todo')
+    priority = models.CharField(max_length=20, choices=PRIORITY_CHOICES, default='medium')
+    project = models.ForeignKey('Project', on_delete=models.CASCADE, related_name='issues')
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='issues')
+    created_time = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.title} ({self.project.title})"
+
+class Comment(models.Model):
+    issue = models.ForeignKey(Issue, on_delete=models.CASCADE, related_name='comments')
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='comments')
+    content = models.TextField()
+    created_time = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Comment by {self.author.username} on {self.issue.title}"
 
 class Contributor(models.Model):
     ROLE_CHOICES = (
