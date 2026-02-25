@@ -1,6 +1,7 @@
 from django.db import models
 from users.models import User
 from django.conf import settings
+import uuid
 
 class Project(models.Model):
     title = models.CharField(max_length=128)
@@ -43,6 +44,7 @@ class Issue(models.Model):
         return f"{self.title} ({self.project.title})"
 
 class Comment(models.Model):
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     issue = models.ForeignKey(Issue, on_delete=models.CASCADE, related_name='comments')
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='comments')
     content = models.TextField()
