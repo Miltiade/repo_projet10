@@ -13,3 +13,16 @@ class IsAuthorOrReadOnly(BasePermission):
 
         # Autorise les opérations d’écriture seulement si l’auteur est le demandeur
         return obj.author == request.user
+
+class IsAuthorOrReadOnlyForAssignee(BasePermission):
+    """
+    Seul l'auteur d'une issue peut en modifier l'assigné, les autres ont uniquement lecture seule.
+    """
+
+    def has_object_permission(self, request, view, obj):
+        if request.method in SAFE_METHODS:
+            return True
+        # Interdire modification si pas auteur et changement sur assignee
+        if 'assignee' in request.data:
+            return obj.author == request.user
+        return True

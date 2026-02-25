@@ -1,5 +1,6 @@
 from django.db import models
 from users.models import User
+from django.conf import settings
 
 class Project(models.Model):
     title = models.CharField(max_length=128)
@@ -30,6 +31,13 @@ class Issue(models.Model):
     project = models.ForeignKey('Project', on_delete=models.CASCADE, related_name='issues')
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='issues')
     created_time = models.DateTimeField(auto_now_add=True)
+    assignee = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='assigned_issues'
+    )
 
     def __str__(self):
         return f"{self.title} ({self.project.title})"
