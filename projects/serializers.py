@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import Project, Contributor, Issue, Comment
+from users.models import User
 
 class ProjectSerializer(serializers.ModelSerializer):
     author = serializers.ReadOnlyField(source='author.username')
