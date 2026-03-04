@@ -8,7 +8,7 @@ from .permissions import IsProjectContributor, IsAuthorOrReadOnly, IsContributor
 class ProjectViewSet(viewsets.ModelViewSet):
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
-    permission_classes = [IsAuthenticated, IsProjectContributor, IsAuthorOrReadOnly, IsContributorCreatePermission]
+    permission_classes = [IsAuthenticated, IsProjectContributor, IsAuthorOrReadOnly]
 
     def perform_create(self, serializer):
         # Lors de la création, l'utilisateur devient auteur et contributeur
