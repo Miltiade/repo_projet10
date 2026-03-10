@@ -3,6 +3,7 @@ from rest_framework.permissions import IsAuthenticated
 from .models import Project, Contributor, Issue, Comment
 from .serializers import ProjectSerializer, ContributorSerializer, IssueSerializer, CommentSerializer
 from .permissions import IsProjectContributor, IsAuthorOrReadOnly, IsContributorCreatePermission
+from projects.mixins import ContributorProjectQuerySetMixin
 
 
 class ProjectViewSet(viewsets.ModelViewSet):
@@ -24,23 +25,33 @@ class ContributorViewSet(viewsets.ModelViewSet):
     serializer_class = ContributorSerializer
     permission_classes = [IsAuthenticated, IsAuthorOrReadOnly]
 
-class IssueViewSet(viewsets.ModelViewSet):
+class IssueViewSet(ContributorProjectQuerySetMixin, viewsets.ModelViewSet):
     queryset = Issue.objects.all()
     serializer_class = IssueSerializer
-    permission_classes = [IsAuthenticated, IsProjectContributor, IsAuthorOrReadOnly, IsContributorCreatePermission]
+    permission_classes = [
+        IsAuthenticated,
+        IsProjectContributor,
+        IsAuthorOrReadOnly,
+        IsContributorCreatePermission,
+    ]
 
     def perform_create(self, serializer):
-        # Contrôle que l'auteur est un contributeur du projet associée à l'issue
         project = serializer.validated_data.get('project')
         if not Contributor.objects.filter(user=self.request.user, project=project).exists():
             from rest_framework.exceptions import PermissionDenied
             raise PermissionDenied("Vous devez être contributeur du projet pour créer une issue.")
         serializer.save(author=self.request.user)
 
-class CommentViewSet(viewsets.ModelViewSet):
+
+class CommentViewSet(ContributorProjectQuerySetMixin, viewsets.ModelViewSet):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
-    permission_classes = [IsAuthenticated, IsProjectContributor, IsAuthorOrReadOnly, IsContributorCreatePermission]
+    permission_classes = [
+        IsAuthenticated,
+        IsProjectContributor,
+        IsAuthorOrReadOnly,
+        IsContributorCreatePermission,
+    ]
 
     def perform_create(self, serializer):
         issue = serializer.validated_data.get('issue')
